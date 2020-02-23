@@ -33,12 +33,15 @@ dependencies {
 The lint check will now be included when lint checks are run on the project.
 
 If the problem is detected it will add a warning to the lint report but also show within the IDE:
+
 ![Lint Warning](./images/LintWarning.png)
 
 Hovering over the warning will give a more detailed description:
+
 ![Detailed Description](./images/DetailedWarning.png)
 
 There will also be the an option to add a fix in the suggestions popup menu:
+
 ![Fix](./images/Fix.png)
 
 

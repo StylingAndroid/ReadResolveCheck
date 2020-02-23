@@ -10,13 +10,13 @@ import com.android.tools.lint.detector.api.LintFix
 import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.intellij.psi.PsiElement
-import java.io.Serializable
-import java.util.EnumSet
 import org.jetbrains.kotlin.psi.KtObjectDeclaration
 import org.jetbrains.uast.UClass
 import org.jetbrains.uast.UElement
 import org.jetbrains.uast.kotlin.KotlinUClass
 import org.jetbrains.uast.kotlin.declarations.KotlinUMethod
+import java.io.Serializable
+import java.util.EnumSet
 
 @Suppress("UnstableApiUsage")
 internal class SerializableObjectMissingReadResolveDetector : Detector(), Detector.UastScanner {
@@ -34,12 +34,7 @@ internal class SerializableObjectMissingReadResolveDetector : Detector(), Detect
                     "return MyObj\n\t}\n\nFailure to do this will mean that the object will not " +
                     "behave as Kotlin objects are supposed to."
         private const val INCORRECT_READ_RESOLVE_SIGNATURE_EXPLANATION =
-            "Kotlin objects are singletons. Java serialization does not understand the singleton " +
-                    "pattern so we must ensure that the singleton behaviour survives serialisation " +
-                    "by implementing a `readResolve()` method which returns the singleton instance. " +
-                    "e.g.\nobject MyObj: Serializable {\n\tprivate fun readResolve() {\n\t\t" +
-                    "return MyObj\n\t}\n\nFailure to do this will mean that the object will not " +
-                    "behave as Kotlin objects are supposed to."
+            MISSING_READ_RESOLVE_ISSUE_EXPLANATION
         private val ISSUE_CATEGORY = Category.CORRECTNESS
         private const val ISSUE_PRIORITY = 1
         private val ISSUE_SEVERITY = Severity.ERROR
@@ -63,9 +58,6 @@ internal class SerializableObjectMissingReadResolveDetector : Detector(), Detect
 
     override fun getApplicableUastTypes() =
         listOf<Class<out UElement>>(UClass::class.java)
-
-    override fun applicableSuperClasses(): List<String>? =
-        listOf(Serializable::class.java.canonicalName)
 
     override fun createUastHandler(context: JavaContext): UElementHandler? =
         object : UElementHandler() {

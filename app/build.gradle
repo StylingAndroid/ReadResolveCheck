@@ -29,7 +29,6 @@ dependencies {
     implementation Libraries.kotlinStdLib
     implementation Libraries.appCompat
     implementation Libraries.constraintLayout
-//    lintChecks project(Libraries.lint)
     lintChecks "com.stylingandroid:read-resolve-check:1.0.0"
 }
 
