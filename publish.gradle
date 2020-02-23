@@ -1,0 +1,52 @@
+Properties properties = new Properties()
+File localProperties = project.rootProject.file('local.properties');
+if (localProperties.exists()) {
+    properties.load(localProperties.newDataInputStream())
+} else {
+    properties.put("bintray.user", System.getenv("BINTRAY_USER"))
+    properties.put("bintray.apikey", System.getenv("BINTRAY_API_KEY"))
+}
+
+def sourceDirs = project.sourceSets.collect {}
+
+def sourcesJar = task("sourcesJar", type: Jar) {
+    description "Puts sources for lint in a jar."
+    from sourceDirs
+    classifier = 'sources'
+}
+
+publishing {
+    publications {
+        MyPublication(MavenPublication) {
+            from components.java
+            groupId Release.groupId
+            artifactId Release.artifactId
+            version Release.libraryVersion
+            artifact sourcesJar
+        }
+    }
+}
+
+bintray {
+    user = properties.getProperty("bintray.user")
+    key = properties.getProperty("bintray.apikey")
+    publications = ['MyPublication']
+    dryRun = false
+
+    override = true
+    pkg {
+        repo = Release.artifactId
+        name = Release.artifactId
+        websiteUrl = "https://github.com/StylingAndroid/ReadResolveCheck"
+        issueTrackerUrl = 'https://github.com/StylingAndroid/ReadResolveCheck/issues'
+        vcsUrl = "https://github.com/StylingAndroid/ReadResolveCheck.git"
+        licenses = ['Apache-2.0']
+        publicDownloadNumbers = true
+        githubRepo = 'StylingAndroid/ReadResolveCheck'
+        version {
+            name = Release.libraryVersion
+            desc = Release.libraryVersion
+            released = new Date()
+        }
+    }
+}

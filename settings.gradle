@@ -1,0 +1,3 @@
+rootProject.name='ReadResolveCheck'
+include ':app'
+include ':lint'

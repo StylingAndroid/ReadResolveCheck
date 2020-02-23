@@ -1,0 +1,10 @@
+apply plugin: 'java-library'
+apply plugin: 'kotlin'
+
+dependencies {
+    implementation Libraries.kotlinStdLib
+    implementation Libraries.kotlinCompiler
+}
+
+sourceCompatibility = "1.8"
+targetCompatibility = "1.8"

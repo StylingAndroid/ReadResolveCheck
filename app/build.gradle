@@ -1,0 +1,56 @@
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+
+android {
+    compileSdkVersion 29
+    buildToolsVersion "29.0.3"
+
+    defaultConfig {
+        applicationId "com.stylingandroid.readresolvelint"
+        minSdkVersion 21
+        targetSdkVersion 29
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+}
+
+dependencies {
+    implementation Libraries.kotlinStdLib
+    implementation Libraries.appCompat
+    implementation Libraries.constraintLayout
+//    lintChecks project(Libraries.lint)
+    lintChecks "com.stylingandroid:read-resolve-check:1.0.0"
+}
+
+detekt {
+    version = "1.5.1"
+    failFast = true
+    input = files("$projectDir/app/src")
+    reports {
+        xml {
+            destination = file("$project.buildDir/reports/detekt/detekt.xml")
+        }
+    }
+}
+
+ktlint {
+    android = true
+    version = "0.35.0"
+    ignoreFailures = false
+    reporters {
+        reporter "plain"
+        reporter "checkstyle"
+    }
+    outputToConsole = true
+}
