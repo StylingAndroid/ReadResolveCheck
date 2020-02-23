@@ -10,13 +10,13 @@ import com.android.tools.lint.detector.api.LintFix
 import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.intellij.psi.PsiElement
+import java.io.Serializable
+import java.util.EnumSet
 import org.jetbrains.kotlin.psi.KtObjectDeclaration
 import org.jetbrains.uast.UClass
 import org.jetbrains.uast.UElement
 import org.jetbrains.uast.kotlin.KotlinUClass
 import org.jetbrains.uast.kotlin.declarations.KotlinUMethod
-import java.io.Serializable
-import java.util.EnumSet
 
 @Suppress("UnstableApiUsage")
 internal class SerializableObjectMissingReadResolveDetector : Detector(), Detector.UastScanner {
