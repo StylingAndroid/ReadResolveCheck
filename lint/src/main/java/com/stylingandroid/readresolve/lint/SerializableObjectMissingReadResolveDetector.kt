@@ -12,11 +12,15 @@ import com.android.tools.lint.detector.api.Severity
 import com.intellij.psi.PsiElement
 import java.io.Serializable
 import java.util.EnumSet
+import org.jetbrains.kotlin.psi.KtClassBody
+import org.jetbrains.kotlin.psi.KtClassOrObject
+import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.KtObjectDeclaration
+import org.jetbrains.kotlin.psi.psiUtil.allChildren
 import org.jetbrains.uast.UClass
 import org.jetbrains.uast.UElement
-import org.jetbrains.uast.kotlin.KotlinUClass
-import org.jetbrains.uast.kotlin.declarations.KotlinUMethod
+import org.jetbrains.uast.kotlin.KotlinUMethod
+
 
 @Suppress("UnstableApiUsage")
 internal class SerializableObjectMissingReadResolveDetector : Detector(), Detector.UastScanner {
@@ -63,18 +67,19 @@ internal class SerializableObjectMissingReadResolveDetector : Detector(), Detect
         object : UElementHandler() {
 
             override fun visitClass(node: UClass) {
+                val sourcePsi = node.sourcePsi
+
                 if (
-                    node is KotlinUClass &&
-                    node.ktClass is KtObjectDeclaration &&
+                    sourcePsi is KtObjectDeclaration &&
                     isSerializable(node)
                 ) {
-                    if (node.doesNotHaveReadResolveMethod()) {
+                    if (sourcePsi.doesNotHaveReadResolveMethod()) {
                         context.report(
                             MISSING_READ_RESOLVE_ISSUE,
                             node,
                             context.getLocation(node as PsiElement),
                             MISSING_READ_RESOLVE_ISSUE_EXPLANATION,
-                            node.createMissingReadResolveLintFix()
+                            sourcePsi.createMissingReadResolveLintFix()
                         )
                     } else {
                         node.methods
@@ -105,14 +110,20 @@ internal class SerializableObjectMissingReadResolveDetector : Detector(), Detect
                     false
                 )
 
-            fun KotlinUClass.doesNotHaveReadResolveMethod(): Boolean =
-                allMethods.none { it.name == "readResolve" }
+            fun KtObjectDeclaration.doesNotHaveReadResolveMethod(): Boolean {
+                return allChildren
+                    .find { it is KtClassBody }
+                    ?.children
+                    ?.filterIsInstance<KtNamedFunction>()
+                    ?.none { it.name == "readResolve" }
+                    ?: true
+            }
 
             fun KotlinUMethod.hasCorrectReadResolveSignature(): Boolean =
                 returnType?.canonicalText == JAVA_OBJECT && parameters.isEmpty()
 
-            fun KotlinUClass.createMissingReadResolveLintFix(): LintFix {
-                val objectSource = sourceElement.text
+            fun KtObjectDeclaration.createMissingReadResolveLintFix(): LintFix {
+                val objectSource = text
                 val hasClassBody = objectSource.trimEnd().endsWith("}")
                 return if (hasClassBody) {
                     LintFix.create()
